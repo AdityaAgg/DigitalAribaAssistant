@@ -20,6 +20,8 @@ import {PayloadComponent} from './payload';
 
 /*
  * Main entry point to the application. This component is responsible for the entire page layout.
+ * Watch: https://www.youtube.com/watch?v=SasXUqBE-38&index=8&list=PLZDyxLlNKRY_GJskIreh9sQgExJ4z8oZO to get an understanding of the UI components
+ * or run and inspect element
  */
 @Component ({
   directives: [CeDocComponent, PayloadComponent],
@@ -32,22 +34,29 @@ import {PayloadComponent} from './payload';
   </div>
   <div id='parent' class='parentDiv' (window:resize)='onResize($event)'>
       <div id='scrollingChat'>
-        <div id='segments' *ngFor='#segment of segments'>
+        <div id='segments' *ngFor='#segment of segments'> <!--segments are dialog response objects-->
           <div [class]='segment.isUser() ? "from-user" :
-            (segment !== segments[segments.length - 1] ? "from-watson" : "from-watson-latest")'>
-            <p class='padding' [innerHtml]='segment.getText()'></p>
-            <div *ngIf='!segment.isUser() && segment.getCe().length>0 && segment !== segments[0]'>
+            (segment !== segments[segments.length - 1] ? "from-watson" : "from-watson-latest")'> <!--from watson or from user or latest-->
+            <p class='padding' [innerHtml]='segment.getText()'></p> <!--display text from dialog response object -->
+
+            <div *ngIf='!segment.isUser() && segment.getCe().length>0 && segment !== segments[0]'> <!--if there are results from the Discovery API - although not sure what CE means-->
               <span title='Click to Collapse' (click)='CeToggle($event)' style='border : none;'
-              class='expcoll'>Collapse Results <span class='sign'>-</span></span>
-              <div class='toggleCe'>
-                <ce-doc *ngFor='#doc of segment.getCe()' [doc]='doc'></ce-doc>
+              class='expcoll'>Collapse Results <span class='sign'>-</span></span> <!-- expand/collapse results -->
+              <div class='toggleCe'> <!--each document pulled from discovery service can be toggled -->
+                <ce-doc *ngFor='#doc of segment.getCe()' [doc]='doc'></ce-doc> <!--component: refer to ce.docs.ts, each is one panel (think one form represented in the UI)-->
               </div>
             </div>
+
           </div>
-          <div class='clear'></div>
-          <div *ngIf='segment.isUser() && segment == segments[segments.length - 1]' class='load'></div>
+          <div class='clear'></div> <!--margin between this segment and the next-->
+          <div *ngIf='segment.isUser() && segment == segments[segments.length - 1]' class='load'></div> <!--loading sign class display:none css attribute by default - if current user's last one to send segment (aka. message) and the last segment in segment array -->
         </div>
       </div>
+
+
+
+
+      <!--scrolling chat complete - payload content - panel w/ json content on the left -/ not as important/necessary for the application-->
       <div class='right'> <!-- Display the payload to/from Watson -->
         <div id='payload-column' class='fixed-column content-column'>
           <payload id='payload-request' class='payload' label='Sent to Watson' [style]='segments.length <= 2 ?
@@ -58,13 +67,19 @@ import {PayloadComponent} from './payload';
             segments[segments.length - 1].getPayload() : null'></payload>
         </div>
       </div>
-      <footer>
+
+
+
+
+      <footer><!--message/segment composer-->
       <label for='textInput' class='inputOutline'>
         <input id='textInput' class='input responsive-column' placeholder='Type something' type='text'
           [(ngModel)]='question' (keydown)='keypressed($event)' style='width:100%'>
       </label>
-      <div class='draw'></div>
+      <div class='draw'></div> <!--line under input field-->
     </footer>
+
+
   </div>
     `
 })

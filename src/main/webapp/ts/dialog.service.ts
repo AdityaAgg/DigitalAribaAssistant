@@ -26,7 +26,7 @@ export class DialogService {
   }
 
   public setup () {
-    return this.http.get ('/rest/setup').map (res => res.json());
+    return this.http.get ('/conversation-with-nlu-0.1-SNAPSHOT/rest/setup').map (res => res.json());
   }
   public message (workspace_id, payloadToWatson) {
     let headers = new Headers ();
@@ -34,7 +34,7 @@ export class DialogService {
 
     if (workspace_id) {
       payloadToWatson = payloadToWatson || {};
-      return this.http.post ('/rest/conversation/api/v1/workspaces/' + workspace_id.trim() + '/message',
+      return this.http.post ('/conversation-with-nlu-0.1-SNAPSHOT/rest/conversation/api/v1/workspaces/' + workspace_id.trim() + '/message',
         JSON.stringify (payloadToWatson), {headers: headers}).map (res => res.json ());
     } else {
       throw 'workspace_id must be defined!';

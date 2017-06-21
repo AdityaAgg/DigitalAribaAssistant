@@ -12,11 +12,10 @@
  */
 package com.ibm.watson.apis.conversation_with_discovery.rest;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The Class WinkApplication.

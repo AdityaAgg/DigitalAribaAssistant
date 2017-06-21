@@ -12,15 +12,13 @@
  */
 package com.ibm.watson.apis.conversation_with_discovery.listener;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.servlet.ServletContextEvent;
-
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.gson.JsonObject;
+import javax.servlet.ServletContextEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * The listener interface for receiving servletContext events. The class that is interested in processing a
@@ -32,49 +30,53 @@ import com.google.gson.JsonObject;
  */
 public class AppServletContextListener implements javax.servlet.ServletContextListener, PropertyChangeListener {
 
-  /** The config. */
-  private JsonObject config = new JsonObject();
-  private static final Logger logger = LogManager.getLogger(AppServletContextListener.class.getName());
+    /**
+     * The config.
+     */
+    private JsonObject config = new JsonObject();
+    private static final Logger logger = LogManager.getLogger(AppServletContextListener.class.getName());
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
-   */
-  @Override
-  public void contextDestroyed(ServletContextEvent arg0) { 
-    logger.info("Destroying ServletContextListener");
-  }
+    /*
+     * (non-Javadoc)
+     *
+     * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+     */
+    @Override
+    public void contextDestroyed(ServletContextEvent arg0) {
+        logger.info("Destroying ServletContextListener");
+    }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
-   */
-  @Override
-  public void contextInitialized(ServletContextEvent arg0) {
-    SetupThread setupThread = new SetupThread();
-    setupThread.addChangeListener(this);
-    setupThread.start();
-    logger.info("Deploying ServletContextListener");
-  }
+    /*
+     * (non-Javadoc)
+     *
+     * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+     */
+    @Override
+    public void contextInitialized(ServletContextEvent arg0) {
+        SetupThread setupThread = new SetupThread();
+        setupThread.addChangeListener(this);
+        for (int i = 0; i < 100; ++i)
+            System.out.println("Context initializing");
+        setupThread.start();
+        logger.info("Deploying ServletContextListener");
+    }
 
-  /**
-   * Fetches the config JSON Object that is sent to the UI.
-   *
-   * @return config
-   */
-  public JsonObject getJsonConfig() {
-    return config;
-  }
+    /**
+     * Fetches the config JSON Object that is sent to the UI.
+     *
+     * @return config
+     */
+    public JsonObject getJsonConfig() {
+        return config;
+    }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.beans.PropertyChangeListener#propertyChange(java.beans. PropertyChangeEvent)
-   */
-  @Override
-  public void propertyChange(PropertyChangeEvent evt) {
-    config = (JsonObject) evt.getNewValue();
-  }
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans. PropertyChangeEvent)
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        config = (JsonObject) evt.getNewValue();
+    }
 }

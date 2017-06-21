@@ -12,91 +12,91 @@
  */
 package com.ibm.watson.apis.conversation_with_discovery.listener;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.google.gson.JsonObject;
 import com.ibm.watson.apis.conversation_with_discovery.utils.Constants;
 import com.ibm.watson.apis.conversation_with_discovery.utils.Messages;
 import com.ibm.watson.developer_cloud.conversation.v1.ConversationService;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageRequest;
-import com.ibm.watson.developer_cloud.discovery.v1.Discovery;
-import com.ibm.watson.developer_cloud.discovery.v1.model.query.QueryRequest;
 import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This class is forked when the application is accessed for the first time. It tests if the conversation and discovery
+ * This class is forked when the application is accessed for the first time. It tests if the conversation and nlu
  * service associated with the app (either bound on bluemix or specified in server.env)
  */
 public class SetupThread extends Thread {
 
-  private static final Logger logger = LogManager.getLogger(SetupThread.class.getName());
+    private static final Logger logger = LogManager.getLogger(SetupThread.class.getName());
 
-  private List<PropertyChangeListener> listener = new ArrayList<PropertyChangeListener>();
+    private List<PropertyChangeListener> listener = new ArrayList<PropertyChangeListener>();
 
-  /** The config. */
-  public JsonObject config = new JsonObject();
+    /**
+     * The config.
+     */
+    public JsonObject config = new JsonObject();
 
-  /**
-   * Method to update the listeners about any property changes. This is used by the UI to inform user what the status of
-   * the setup.
-   *
-   * @param object
-   * @param config
-   */
-  private void notifyListeners(Object object, JsonObject config) {
-    for (PropertyChangeListener configUpdate : listener) {
-      configUpdate.propertyChange(new PropertyChangeEvent(this, "configSetup", config, config)); //$NON-NLS-1$
+    /**
+     * Method to update the listeners about any property changes. This is used by the UI to inform user what the status of
+     * the setup.
+     *
+     * @param object
+     * @param config
+     */
+    private void notifyListeners(Object object, JsonObject config) {
+        for (PropertyChangeListener configUpdate : listener) {
+            configUpdate.propertyChange(new PropertyChangeEvent(this, "configSetup", config, config)); //$NON-NLS-1$
+        }
     }
-  }
 
-  /**
-   * This method is used to update the JSON Config Object that will be sent back to the UI.
-   *
-   * @param config
-   * @param setupStep The step at which the setup is
-   * @param setupState The state of the setup(accepts ready/not_ready)
-   * @param setupPhase The current phase of the setup(this can be that the services is being setup or if any other
-   *        phase of the application is being setup)
-   * @param setupMessage The message that you want to be shown in the UI.
-   */
-  private void updateConfigObject(String setupStep, String setupState, String setupPhase, String setupMessage) {
-    config.addProperty(Constants.SETUP_STEP, setupStep); // $NON-NLS-1$
-    config.addProperty(Constants.SETUP_STATE, setupState); // $NON-NLS-1$
-    config.addProperty(Constants.SETUP_PHASE, setupPhase); // $NON-NLS-1$
-    config.addProperty(Constants.SETUP_MESSAGE, setupMessage); // $NON-NLS-1$
-    notifyListeners(this, config);
-  }
+    /**
+     * This method is used to update the JSON Config Object that will be sent back to the UI.
+     *
+     * @param setupStep    The step at which the setup is
+     * @param setupState   The state of the setup(accepts ready/not_ready)
+     * @param setupPhase   The current phase of the setup(this can be that the services is being setup or if any other
+     *                     phase of the application is being setup)
+     * @param setupMessage The message that you want to be shown in the UI.
+     */
+    private void updateConfigObject(String setupStep, String setupState, String setupPhase, String setupMessage) {
+        config.addProperty(Constants.SETUP_STEP, setupStep); // $NON-NLS-1$
+        config.addProperty(Constants.SETUP_STATE, setupState); // $NON-NLS-1$
+        config.addProperty(Constants.SETUP_PHASE, setupPhase); // $NON-NLS-1$
+        config.addProperty(Constants.SETUP_MESSAGE, setupMessage); // $NON-NLS-1$
+        notifyListeners(this, config);
+    }
 
-  /**
-   * Method to add a listener.
-   *
-   * @param newListener PropertyChangeListener
-   */
-  public void addChangeListener(PropertyChangeListener newListener) {
-    listener.add(newListener);
-  }
+    /**
+     * Method to add a listener.
+     *
+     * @param newListener PropertyChangeListener
+     */
+    public void addChangeListener(PropertyChangeListener newListener) {
+        listener.add(newListener);
+    }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Thread#run()
-   */
-  @Override
-  public void run() {
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Thread#run()
+     */
+    @Override
+    public void run() {
 
-    String status = "";
+        String status = "";
 
-    try {
-      updateConfigObject("1", Constants.NOT_READY, Messages.getString("SetupThread.EMPTY"),
+        try {
+            String userName;
+            String password;
+      /*updateConfigObject("1", Constants.NOT_READY, Messages.getString("SetupThread.EMPTY"),
           Messages.getString("SetupThread.GETTING_CREDENTIALS"));
 
-      // test discovery credentials
+      // test nlu credentials
 
       String userName = System.getenv("DISCOVERY_USERNAME");
       String password = System.getenv("DISCOVERY_PASSWORD");
@@ -111,51 +111,51 @@ public class SetupThread extends Thread {
         throw new IllegalArgumentException(Messages.getString("SetupThread.DISC_INVALID_CREDS"));
       }
 
-      status = "Discovery ";
-
+      status = "Discovery ";*/
+/*
       Discovery discovery = new Discovery(Constants.DISCOVERY_VERSION);
       discovery.setEndPoint(Constants.DISCOVERY_URL);
       discovery.setUsernameAndPassword(userName, password);
 
       QueryRequest.Builder queryBuilder = new QueryRequest.Builder(environmentId, collectionId);
       queryBuilder.query("searchText:car tire pressure");
-      discovery.query(queryBuilder.build()).execute();
+      discovery.query(queryBuilder.build()).execute();*/
 
-      // test conversation credentials
+            // test conversation credentials
 
-      updateConfigObject("2", Constants.NOT_READY, Messages.getString("SetupThread.EMPTY"),
-          Messages.getString("SetupThread.GETTING_CREDENTIALS"));
+            updateConfigObject("2", Constants.NOT_READY, Messages.getString("SetupThread.EMPTY"),
+                    Messages.getString("SetupThread.GETTING_CREDENTIALS"));
 
-      userName = System.getenv("CONVERSATION_USERNAME");
-      password = System.getenv("CONVERSATION_PASSWORD");
-      String workspaceId = System.getenv("WORKSPACE_ID");
+            userName = System.getenv("CONVERSATION_USERNAME");
+            password = System.getenv("CONVERSATION_PASSWORD");
+            String workspaceId = System.getenv("WORKSPACE_ID");
 
-      if ((userName == null) || (password == null) || (workspaceId == null)) {
-        throw new IllegalArgumentException(Messages.getString("SetupThread.CONV_INVALID_CREDS"));
-      }
-      if ((userName.length() == 0) || (password.length() == 0) || (workspaceId.length() == 0)) {
-        throw new IllegalArgumentException(Messages.getString("SetupThread.CONV_INVALID_CREDS"));
-      }
+            if ((userName == null) || (password == null) || (workspaceId == null)) {
+                throw new IllegalArgumentException(Messages.getString("SetupThread.CONV_INVALID_CREDS"));
+            }
+            if ((userName.length() == 0) || (password.length() == 0) || (workspaceId.length() == 0)) {
+                throw new IllegalArgumentException(Messages.getString("SetupThread.CONV_INVALID_CREDS"));
+            }
 
-      status = "Conversation ";
+            status = "Conversation ";
 
-      ConversationService service = new ConversationService(ConversationService.VERSION_DATE_2016_07_11);
-      service.setUsernameAndPassword(userName, password);
-      MessageRequest newMessage = new MessageRequest.Builder().inputText("hi").context(null).build();
-      service.message(workspaceId, newMessage).execute();
+            ConversationService service = new ConversationService(ConversationService.VERSION_DATE_2016_07_11);
+            service.setUsernameAndPassword(userName, password);
+            MessageRequest newMessage = new MessageRequest.Builder().inputText("hi").context(null).build();
+            service.message(workspaceId, newMessage).execute();
 
-      updateConfigObject("3", Constants.READY, Messages.getString("SetupThread.EMPTY"),
-          Messages.getString("SetupThread.EMPTY"));
+            updateConfigObject("3", Constants.READY, Messages.getString("SetupThread.EMPTY"),
+                    Messages.getString("SetupThread.EMPTY"));
 
-      logger.info(Messages.getString("SetupThread.SETUP_COMPLETE"));
-    } catch (Exception e) {
-      logger.error(Messages.getString("SetupThread.ERROR_COLLECTION_INIT") + e.getMessage());
-      if (e instanceof UnauthorizedException) {
-        updateConfigObject("0", Constants.NOT_READY, Messages.getString("SetupThread.ERROR"), status + e.getMessage());
-      } else {
-        updateConfigObject("0", Constants.NOT_READY, Messages.getString("SetupThread.ERROR"),
-            e.getMessage() + " " + Messages.getString("SetupThread.CHECK_LOGS"));
-      }
+            logger.info(Messages.getString("SetupThread.SETUP_COMPLETE"));
+        } catch (Exception e) {
+            logger.error(Messages.getString("SetupThread.ERROR_COLLECTION_INIT") + e.getMessage());
+            if (e instanceof UnauthorizedException) {
+                updateConfigObject("0", Constants.NOT_READY, Messages.getString("SetupThread.ERROR"), status + e.getMessage());
+            } else {
+                updateConfigObject("0", Constants.NOT_READY, Messages.getString("SetupThread.ERROR"),
+                        e.getMessage() + " " + Messages.getString("SetupThread.CHECK_LOGS"));
+            }
+        }
     }
-  }
 }
