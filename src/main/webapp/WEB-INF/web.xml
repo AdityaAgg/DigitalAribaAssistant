@@ -8,7 +8,7 @@
         <welcome-file>redirect.html</welcome-file>
     </welcome-file-list>
     <listener>
-        <listener-class>com.ibm.watson.apis.conversation_with_discovery.listener.AppServletContextListener
+        <listener-class>com.ibm.watson.apis.conversation_with_nlu.listener.AppServletContextListener
         </listener-class>
     </listener>
     <servlet>
@@ -19,7 +19,7 @@
 
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>com.ibm.watson.apis.conversation_with_discovery.rest</param-value>
+            <param-value>com.ibm.watson.apis.conversation_with_nlu.rest</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

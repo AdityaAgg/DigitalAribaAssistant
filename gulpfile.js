@@ -16,6 +16,7 @@
   var precss = require('precss');
   var cssnano = require('cssnano');
 
+
   /* JS & TS */
   var typescript = require('gulp-typescript');
 
@@ -50,6 +51,9 @@
       .pipe($.size({'title': 'ts'}));
   });
 
+
+
+
   gulp.task('build', [
     'build-ts', 'build-css', 'build-img', 'build-fonts', 'build-locale'
   ], function() {
@@ -58,6 +62,15 @@
       .pipe(gulp.dest(appProd))
       .pipe($.size({'title': 'html'}));
   });
+
+    /*gulp.task('build-ang-dependencies', function () {
+        return gulp.src([
+            'node_modules/moment/moment.js'
+        ])
+            .pipe(concat('vendor.min.js'))
+            .pipe(uglify()).on('error', onError)
+            .pipe(gulp.dest(appProd))
+    });*/
 
   gulp.task('build-img', function() {
     return gulp.src(appDev + 'img/**/*')

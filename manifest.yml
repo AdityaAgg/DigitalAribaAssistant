@@ -1,7 +1,7 @@
 ---
 applications:
-- services:
-  - nlu-service
-  - conversation-service
-  path: build/libs/conversation-with-nlu-0.1-SNAPSHOT.war
-  memory: 512M
+- name: Ariba-Assist
+random-route: true
+path: build/libs/conversation-with-nlu-0.1-SNAPSHOT.war
+memory: 1GB
+buildpack: java_buildpack

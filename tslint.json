@@ -1,5 +1,5 @@
 {
-  "rules": {
+  "rules": { /*
     "class-name": true,
     "comment-format": [
       true,
@@ -97,6 +97,6 @@
       "check-operator",
       "check-separator",
       "check-type"
-    ]
+    ]*/
   }
 }
