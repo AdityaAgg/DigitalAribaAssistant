@@ -1,11 +1,13 @@
+/**
+ * Message represents one message being sent in a Thread
+ */
 System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var Message;
     return {
         setters: [],
-        execute: function () {
-            /**
+        execute: function () {/**
              * Message represents one message being sent in a Thread
              */
             Message = (function () {
@@ -16,6 +18,8 @@ System.register([], function (exports_1, context_1) {
                     this.isUser = obj && obj.isUser || false;
                     this.text = obj && obj.text || null;
                     this.payload = obj && obj.payload || null;
+                    this.widgets = obj && obj.widgets || null;
+                    this.suppliers = obj && obj.suppliers || null;
                 }
                 return Message;
             }());

@@ -18,6 +18,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.ibm.watson.apis.conversation_with_nlu.discovery.DiscoveryClient;
 import com.ibm.watson.apis.conversation_with_nlu.nlu.NluClient;
 import com.ibm.watson.apis.conversation_with_nlu.payload.DocumentPayload;
+import com.ibm.watson.apis.conversation_with_nlu.payload.FormsPayload;
 import com.ibm.watson.apis.conversation_with_nlu.payload.Payload;
 import com.ibm.watson.apis.conversation_with_nlu.utils.Constants;
 import com.ibm.watson.apis.conversation_with_nlu.utils.Messages;
@@ -167,29 +168,38 @@ public class ProxyResource {
                 else {
                     JsonParser parser = new JsonParser();
                     JsonArray recentDocuments = parser.parse(response.body().string()).getAsJsonArray();
-                    String results = "";
+
 
 
                     int retrieveDocsAmount = 3;
                     if (recentDocuments.size() < 3)
                         retrieveDocsAmount = recentDocuments.size();
+                    ArrayList<FormsPayload> formsPayloads = new ArrayList<>();
                     for (int i = 0; i < retrieveDocsAmount; ++i) {
                         JsonObject recentDoc = recentDocuments.get(i).getAsJsonObject();
-
-                        String templateId = recentDoc.get("templateId").getAsString();
                         String id = recentDoc.get("id").getAsString();
-                        String status = recentDoc.get("status").getAsString();
-                        String userSubmitted = recentDoc.get("userId").getAsString();
+                        String requestor = recentDoc.get("userId").getAsString();
+                        JsonObject data = recentDoc.get("data").getAsJsonObject();
+                        String origin = data.get("5374310d-2a5f-4ade-79fd-1317db1d2b4a").getAsJsonObject().get("value").getAsString();
+                        String destination = data.get("e89cab56-b090-ffba-063a-79181374617c").getAsJsonObject().get("value").getAsString();
+                        String product = data.get("24645f6b-f905-a7fd-4ca8-c2e9888665a7").getAsJsonObject().get("value").getAsString();
+                        Double cost = Double.parseDouble(data.get("66c89f43-6c11-2a43-86bc-d0d9d015de17").getAsJsonObject().get("value").getAsString());
 
-                        results += "<b>Doc " + (i + 1) + "</b>: " + userSubmitted + " submitted this form with id " + id + " and status " + status + " with templateid " + templateId + ". ";
-                        results += "<br>";
+                        FormsPayload formsPayload = new FormsPayload(origin, destination, product, cost, id, requestor);
+                        formsPayloads.add(formsPayload);
+
 
                         context.put("doc_" + (i + 1), id);
+
                     }
+
                     Map<String, Object> output = messageResponse.getOutput();
+                    String json = new Gson().toJson(formsPayloads);
+                    context.put("recent_docs", json);
                     String[] texts = new String[1];
-                    texts[0] = retrieveDocsAmount + " Most Recent Saved Forms " + "<br> <br>" + results;
+                    texts[0] = "Your past forms are: ";
                     output.put("text", texts);
+                    output.put("past_forms", true);
                 }
                 response.body().close(); //release response resources
 
@@ -235,6 +245,7 @@ public class ProxyResource {
                     if (createFormValue == null || createFormValue.toLowerCase().trim().contains("doc")) {
                         String[] texts = new String[1];
                         texts[0] = "Could not find the form you are looking for. Sorry, failed to get data from form.";//TODO: send failed requests to a Watson service for a human reviewer to make the bot more intelligent?
+
                         Map<String, Object> output = messageResponse.getOutput();
                         output.put("text", texts);
 
@@ -261,6 +272,7 @@ public class ProxyResource {
                                 Map<String, Object> output = messageResponse.getOutput();
                                 String[] texts = new String[1];
                                 texts[0] = " Stored in context variable create_from_data " + stringData + "<br> Now I can assist you with supplier selection.";
+
                                 output.put("text", texts);
                                 context.put("create_from_data", stringData);
                                 context.put("form_population_success", true);
@@ -341,18 +353,19 @@ public class ProxyResource {
                 if (suppliers == null) setSuppliers(context, productName);
 
                 texts = new String[1];
-                texts[0] = "Here are some other options: <br> <ul>";
-                for (int i = 0; i < suppliers.size(); ++i) {
+                texts[0] = "Here are some other options:";
+                /*for (int i = 0; i < suppliers.size(); ++i) {
 
                     JsonObject supplier = suppliers.get(i).getAsJsonObject();
                     if (!supplier.get("name").getAsString().equals(supplierName)) {
                         double supplierCost = supplier.get("cost").getAsDouble();
                         texts[0] += "<li> " + supplier.get("name").getAsString() + " (costs: $" + supplierCost + ") ( $" + (Constants.BUDGET - supplierCost) + ") </li>";
                     }
-                }
-                texts[0] += "</ul>";
+                }*/
+
                 output = messageResponse.getOutput();
                 output.put("text", texts);
+                output.put("other_supplier_options", true);
 
 
                 break;
@@ -384,42 +397,34 @@ public class ProxyResource {
 
     private void moreInfoDelay(Map<String, Object> context, HttpClient httpClient, MessageResponse response) {
         ArrayList<LinkedTreeMap<String, Object>> delays = (ArrayList) context.get("delays");
-        String returnValue = "Unfortunately, I do not have more information about the delay.";
-        if (delays != null && delays.size() > 0)
-            returnValue = "Sure, the delay seems to be due to the following: <br>";
-        for (int i = 0; i < delays.size(); ++i) {
-            Map<String, Object> delay = delays.get(i);
-
-            String typeofDelay = delay.get("type") + "";
-            returnValue += "<h2>" + typeofDelay.substring(0, 1).toUpperCase() + typeofDelay.substring(1) + "</h2> <br> <br> ";
-            returnValue += "<b> " + delay.get("title") + "</b> <br>";
-            returnValue += delay.get("body");
-            returnValue += "<br><br>";
+        boolean returnValue = false;
+        if (delays != null && delays.size() > 0) {
+            returnValue = true;
         }
-        String[] texts = new String[1];
-        texts[0] = returnValue;
-        response.getOutput().put("text", texts);
+        response.getOutput().put("delay", returnValue);
+
+
     }
 
     private void deliveryTimeAction(Map<String, Object> context, OkHttpClient httpClient, MessageResponse response) {
         boolean delayDuetoNews = newsAction(context, "Doha");
         //TODO: get origin data from angular application
-        boolean delayDuetoWeather = weatherAction(context, httpClient, "Los Angeles, California");
+        //boolean delayDuetoWeather = weatherAction(context, httpClient, "Los Angeles, California");
 
         String[] texts = new String[1];
         Map<String, Object> output = response.getOutput();
-        if (delayDuetoNews || delayDuetoWeather) {
+        if (delayDuetoNews) { //|| delayDuetoWeather
             texts[0] = "This supplier is on time, however, there could be a delay due";
         } else {
 
             texts[0] = "Seems like there's a high likelihood that you will receive your shipment on time.";
             output.put("text", texts);
         }
-
+        /*
         if (delayDuetoWeather) {
             texts[0] += ", to bad weather forecast";
             output.put("text", texts);
-        }
+        }*/
 
         if (delayDuetoNews) {
             texts[0] += ", to reasons detailed in recent shipping news releases";
@@ -541,10 +546,13 @@ public class ProxyResource {
                 if (isRelevant) {
                     JsonArray delays = new JsonArray();
 
-                    String weatherHeadline = alert.get("headline_text").getAsString() + " - Issued by " + alert.get("source").getAsString() + " " + alert.get("office_name").getAsString() + ", " + alert.get("office_cntry_cd");
+                    String weatherHeadline = alert.get("headline_text").getAsString();
+                    String source = alert.get("source").getAsString() + alert.get("office_name").getAsString() + ", " + alert.get("office_cntry_cd");
                     if (description == null)
                         description = "";
-                    DocumentPayload documentPayload = new DocumentPayload(weatherHeadline, "weather", "", description);
+                    else
+                        description = description.toLowerCase();//TODO: DocumentPayload for weather - sourceUrl and date fields missing
+                    DocumentPayload documentPayload = new DocumentPayload(weatherHeadline, "weather", null, description.toLowerCase(), source, null);
                     Gson gson = new Gson();
                     delays.add(new JsonParser().parse(gson.toJson(documentPayload)).getAsJsonObject());
 

@@ -1,8 +1,11 @@
-
 /**
  * Message represents one message being sent in a Thread
  */
- export class Message {
+
+import {Widget} from "./widget.model";
+import {SupplierModel} from "./supplier.model";
+
+export class Message {
 
    sentAt: Date;
    isRead: boolean;
@@ -10,6 +13,8 @@
    isUser: boolean;
    payload: Object;
    text: string;
+   widgets: Widget[];
+   suppliers: SupplierModel[];
 
    constructor(obj?: any) {
 
@@ -19,6 +24,9 @@
      this.isUser          = obj && obj.isUser          || false;
      this.text            = obj && obj.text            || null;
      this.payload         = obj && obj.payload         || null;
+     this.widgets         = obj && obj.widgets         || null;
+     this.suppliers       = obj && obj.suppliers       || null;
+
    }
  }
 

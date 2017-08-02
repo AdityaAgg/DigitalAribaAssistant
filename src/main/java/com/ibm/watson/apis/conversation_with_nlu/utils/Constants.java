@@ -31,12 +31,16 @@ public class Constants {
     /**
      * The Constant DISCOVERY_FIELD_BODY.
      */
-    public static final String DISCOVERY_FIELD_BODY = "text";
+    public static final String DISCOVERY_FIELD_BODY = "alchemyapi_text";
 
     /**
      * The Constant DISCOVERY_FIELD_CONFIDENCE.
      */
     public static final String DISCOVERY_FIELD_CONFIDENCE = "score";
+
+
+
+    public static final String DISCOVERY_FIELD_SOURCE ="host";
 
     /**
      * The Constant DISCOVERY_FIELD_ID.
@@ -52,6 +56,11 @@ public class Constants {
      * The Constant DISCOVERY_FIELD_TITLE.
      */
     public static final String DISCOVERY_FIELD_TITLE = "title";
+
+
+
+
+    public static final String DISCOVERY_FIELD_DATE = "yyyymmdd";
 
     /**
      * The Constant DISCOVERY_MAX_SEARCH_RESULTS_TO_SHOW.
@@ -117,6 +126,9 @@ public class Constants {
      * The Constant WORKSPACE_ID.
      */
     public static final String WORKSPACE_ID = "WORKSPACE_ID";
+
+
+
 
 
     public static final okhttp3.MediaType JSON

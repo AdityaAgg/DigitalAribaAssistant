@@ -1,4 +1,4 @@
-System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.docs", "./payload", "./supplier.service", "./message.model", "./chat.message.component"], function (exports_1, context_1) {
+System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.docs", "./payload", "./supplier.service", "./message.model", "./chat.message.component", "./widget.model", "./supplier.model"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -10,7 +10,7 @@ System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.doc
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var __moduleName = context_1 && context_1.id;
-    var core_1, dialog_service_1, http_1, ce_docs_1, payload_1, supplier_service_1, message_model_1, chat_message_component_1, AppComponent;
+    var core_1, dialog_service_1, http_1, ce_docs_1, payload_1, supplier_service_1, message_model_1, chat_message_component_1, widget_model_1, supplier_model_1, AppComponent;
     return {
         setters: [
             function (core_1_1) {
@@ -36,6 +36,12 @@ System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.doc
             },
             function (chat_message_component_1_1) {
                 chat_message_component_1 = chat_message_component_1_1;
+            },
+            function (widget_model_1_1) {
+                widget_model_1 = widget_model_1_1;
+            },
+            function (supplier_model_1_1) {
+                supplier_model_1 = supplier_model_1_1;
             }
         ],
         execute: function () {
@@ -53,6 +59,8 @@ System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.doc
                     this.question = null;
                     this.segments = []; // Array of requests and responses
                     this.workspace_id = null;
+                    this.widgets = [];
+                    this.suppliers = [];
                     this.getLang();
                 }
                 AppComponent.prototype.ngAfterViewInit = function (_dialogService) {
@@ -72,12 +80,6 @@ System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.doc
                     function (//get introductory message - check locale/en.json
                         data) {
                         _this.langData = data;
-                        var obj = {};
-                        obj["text"] = _this.langData.Description;
-                        obj["isUser"] = false;
-                        var message = new message_model_1.Message(obj);
-                        _this.segments.push(message);
-                        console.log(_this.segments);
                     }, function (error) {
                         var lang_url = 'locale/en.json';
                         _this.http.get(lang_url).map(function (res) { return res.json(); }).subscribe(//nested attempt
@@ -314,27 +316,90 @@ System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.doc
                                 data1 = _this.langData.NResponse;
                             }
                             else if (data1.output) {
-                                if (data1.output.text) {
-                                    if (data1.output.text.length >= 1) {
-                                        responseText = data1.output.text.join('<br>');
+                                _this.widgets = [];
+                                if (data1.output.delay) {
+                                    var delays = data1.context.delays;
+                                    var newsWidget = null;
+                                    for (var _i = 0, delays_1 = delays; _i < delays_1.length; _i++) {
+                                        var delay = delays_1[_i];
+                                        var obj_1 = {};
+                                        obj_1["title"] = delay.title;
+                                        obj_1["date"] = delay.date;
+                                        obj_1["desc"] = delay.body;
+                                        obj_1["source"] = delay.source;
+                                        obj_1["url"] = delay.sourceUrl;
+                                        if (delay.type === "news") {
+                                            obj_1["icon_url"] = "img/newspaper.svg";
+                                        }
+                                        else {
+                                            obj_1["icon_url"] = "img/form.svg";
+                                        }
+                                        newsWidget = new widget_model_1.Widget(obj_1);
+                                        _this.widgets.push(newsWidget);
+                                    }
+                                    console.log(_this.widgets);
+                                }
+                                else if (data1.output.past_forms) {
+                                    var recentDocs = data1.context.recent_docs;
+                                    var mainRecentDocs = JSON.parse(recentDocs);
+                                    for (var _a = 0, mainRecentDocs_1 = mainRecentDocs; _a < mainRecentDocs_1.length; _a++) {
+                                        var doc = mainRecentDocs_1[_a];
+                                        var obj_2 = {};
+                                        console.log(doc.origin);
+                                        obj_2["origin"] = doc.origin;
+                                        console.log(doc.destination);
+                                        obj_2["destination"] = doc.destination;
+                                        obj_2["product"] = doc.product;
+                                        obj_2["cost"] = doc.cost;
+                                        obj_2["requestor"] = doc.requestor;
+                                        console.log(obj_2);
+                                        _this.widgets.push(new widget_model_1.Widget(obj_2));
+                                        console.log(_this.widgets);
                                     }
                                 }
+                                else if (data1.output.other_supplier_options) {
+                                    console.log(data1.output.other_supplier_options);
+                                    _this.suppliers = [];
+                                    var currentSupplier = data1.context.current_supplier;
+                                    var localSuppliers = data1.context.suppliers;
+                                    console.log(localSuppliers);
+                                    for (var _b = 0, localSuppliers_1 = localSuppliers; _b < localSuppliers_1.length; _b++) {
+                                        var supplier = localSuppliers_1[_b];
+                                        console.log(supplier);
+                                        if (!(supplier.name == currentSupplier)) {
+                                            var obj_3 = {};
+                                            obj_3["name"] = supplier.name;
+                                            obj_3["cost"] = supplier.cost;
+                                            var supplierModel = new supplier_model_1.SupplierModel(obj_3);
+                                            _this.suppliers.push(supplierModel);
+                                        }
+                                    }
+                                }
+                                if (data1.output.text && data1.output.text.length >= 1) {
+                                    responseText = data1.output.text.join('<br>');
+                                }
                             }
+                            var obj = {};
+                            obj["text"] = responseText;
+                            obj["isUser"] = false;
+                            obj["payload"] = data1;
+                            if (_this.widgets != null) {
+                                obj["widgets"] = _this.widgets;
+                                console.log(obj["widgets"]);
+                            }
+                            if (_this.suppliers != null && _this.suppliers.length > 0) {
+                                obj["suppliers"] = _this.suppliers;
+                            }
+                            _this.segments.push(new message_model_1.Message(obj));
+                            chatColumn.classList.remove('loading');
+                            if (_this.timer) {
+                                clearTimeout(_this.timer);
+                            }
+                            _this.timer = setTimeout(function () {
+                                var messages = document.getElementById('scrollingChat').getElementsByClassName('clear');
+                                _this.scrollToBottom();
+                            }, 50);
                         }
-                        var obj = {};
-                        obj["text"] = responseText;
-                        obj["isUser"] = false;
-                        obj["payload"] = data1;
-                        _this.segments.push(new message_model_1.Message(obj));
-                        chatColumn.classList.remove('loading');
-                        if (_this.timer) {
-                            clearTimeout(_this.timer);
-                        }
-                        _this.timer = setTimeout(function () {
-                            var messages = document.getElementById('scrollingChat').getElementsByClassName('clear');
-                            _this.scrollToBottom();
-                        }, 50);
-                        //document.getElementById('textInput').focus();
                     }, function (error) {
                         var serviceDownMsg = _this.langData.Log;
                         var obj = {};
@@ -357,8 +422,7 @@ System.register(["angular2/core", "./dialog.service", "angular2/http", "./ce.doc
                     directives: [ce_docs_1.CeDocComponent, payload_1.PayloadComponent, chat_message_component_1.ChatMessageComponent],
                     providers: [dialog_service_1.DialogService, supplier_service_1.SupplierService],
                     selector: 'chat-app',
-                    template: "\n\n\n\n\n        <div class=\"chat-window-container\">\n            <div class=\"chat-window\">\n                <div class=\"panel-container\">\n                    <div class=\"panel panel-default\">\n\n                        <div class=\"panel-heading top-bar\">\n                            <div class=\"panel-title-container\">\n                                <h3 class=\"panel-title\">\n                                    <span class=\"glyphicon glyphicon-comment\"></span>\n                                    Ariba Digital Assistant\n                                </h3>\n                            </div>\n\n                            <div class=\"panel-buttons-container\">\n                            </div>\n                        </div>\n\n                        <div class=\"panel-body msg-container-base\" id=\"scrollingChat\">\n                            <chat-message *ngFor=\"let segment of segments\" [message]=\"segment\"></chat-message>\n                        \n                            <div class='clear'></div> <!--margin between this segment and the next-->\n                            <!--<div *ngIf='segment.isUser && segment == segments[segments.length - 1]' class='load'></div>-->\n                        </div>\n\n                        <div class=\"panel-footer\"> <!--TODO: appropriately style send button and top bar -->\n                            <div class=\"input-group\">\n                                <input type=\"text\" class=\"chat-input\"\n                                       placeholder=\"Write your message here...\"\n                                       [(ngModel)]='question' (keydown)='keypressed($event)'/>\n                                <span class=\"input-group-btn\">\n            <button class=\"btn-chat\"\n                    (click)=\"keypressed($event)\"\n            >Send</button>\n          </span>\n                            </div>\n                        </div>\n\n                    </div>\n                </div>\n            </div>\n        </div>\n\n\n    ",
-                    styleUrls: ['../scss/chat-window-css.css'],
+                    template: "\n\n\n\n\n        <div class=\"chat-window-container\">\n            <div class=\"chat-window\">\n                <div class=\"panel-container\">\n                    <div class=\"panel panel-default\">\n\n                        <div class=\"panel-heading top-bar\">\n                            <div class=\"panel-title-container\">\n                                <h3 class=\"panel-title\">\n                                    <span class=\"glyphicon glyphicon-comment\"></span>\n                                    Ariba Digital Assistant\n                                </h3>\n                            </div>\n\n                            <div class=\"panel-buttons-container\">\n                            </div>\n                        </div>\n\n                        <div class=\"panel-body msg-container-base\" id=\"scrollingChat\">\n                            <chat-message *ngFor=\"let segment of segments\" [message]=\"segment\"></chat-message>\n\n                            <div class='clear'></div> <!--margin between this segment and the next-->\n                            <!--<div *ngIf='segment.isUser && segment == segments[segments.length - 1]' class='load'></div>-->\n                        </div>\n\n                        <div class=\"panel-footer\"> <!--TODO: appropriately style send button and top bar -->\n                            <div class=\"input-group\">\n                                <input type=\"text\" class=\"chat-input\"\n                                       placeholder=\"Write your message here...\"\n                                       [(ngModel)]='question' (keydown)='keypressed($event)'/>\n                                <span class=\"input-group-btn\">\n            <button class=\"btn-chat\"\n                    (click)=\"keypressed($event)\"\n            >Send</button>\n          </span>\n                            </div>\n                        </div>\n\n                    </div>\n                </div>\n            </div>\n        </div>\n\n\n    ",
                 }),
                 __metadata("design:paramtypes", [dialog_service_1.DialogService, supplier_service_1.SupplierService, http_1.Http, core_1.ElementRef])
             ], AppComponent);

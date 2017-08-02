@@ -1,19 +1,23 @@
 import { Pipe, PipeTransform } from 'angular2/core';
-declare var moment: any;
+
 
 /**
  * FromNowPipe let's us convert a date into a human-readable relative-time
  * such as "10 minutes ago".
  */
 @Pipe({
-    name: 'fromNow'
+    name: 'budgetPipe'
 })
-export class FromNowPipe implements PipeTransform {
+export class BudgetPipe implements PipeTransform {
     transform(value: any, args: Array<any>): string {
-        return moment(value).fromNow();
+        let budgetValue = 400000 - value;
+        if(budgetValue> 0){
+            return "+$" + budgetValue;
+        } else
+            return "-$" + Math.abs(budgetValue);
     }
 }
 
 export const fromNowPipeInjectables: Array<any> = [
-    FromNowPipe
+   BudgetPipe
 ];

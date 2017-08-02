@@ -22,6 +22,9 @@ import com.ibm.watson.developer_cloud.discovery.v1.model.query.QueryResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,7 +108,30 @@ public class DiscoveryClient {
                 } else {
                     documentPayload.setConfidence("0.0");
                 }
+
+                if(jarray.get(i).getAsJsonObject().get(Constants.DISCOVERY_FIELD_DATE) == null) {
+                    documentPayload.setDate(null);
+                } else {
+                    String dateString = jarray.get(i).getAsJsonObject().get(Constants.DISCOVERY_FIELD_DATE).getAsString();
+                    DateFormat df = new SimpleDateFormat("yyyyMMdd");
+
+                    try {
+                        Date newDate = df.parse(jarray.get(i).getAsJsonObject().get(Constants.DISCOVERY_FIELD_DATE).getAsString());
+                        documentPayload.setDate(newDate);
+                    } catch (ParseException e) {
+                        documentPayload.setDate(null);
+                        e.printStackTrace();
+                    }
+                }
+                if(jarray.get(i).getAsJsonObject().get(Constants.DISCOVERY_FIELD_SOURCE)==null) {
+                    documentPayload.setSource(null);
+                } else {
+                    documentPayload.setSource(jarray.get(i).getAsJsonObject().get(Constants.DISCOVERY_FIELD_SOURCE).getAsString().substring(4));
+                }
+
                 documentPayload.setType("news");
+
+
                 payload.add(i, documentPayload);
             }
         }

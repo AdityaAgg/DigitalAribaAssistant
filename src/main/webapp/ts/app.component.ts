@@ -19,7 +19,10 @@ import {PayloadComponent} from './payload';
 import {SupplierService} from "./supplier.service";
 import {Message} from "./message.model";
 import {ChatMessageComponent} from "./chat.message.component";
-declare var $:JQueryStatic;
+import {Widget} from "./widget.model";
+import {SupplierModel} from "./supplier.model";
+
+declare var $: JQueryStatic;
 
 
 /*
@@ -56,7 +59,7 @@ declare var $:JQueryStatic;
 
                         <div class="panel-body msg-container-base" id="scrollingChat">
                             <chat-message *ngFor="let segment of segments" [message]="segment"></chat-message>
-                        
+
                             <div class='clear'></div> <!--margin between this segment and the next-->
                             <!--<div *ngIf='segment.isUser && segment == segments[segments.length - 1]' class='load'></div>-->
                         </div>
@@ -81,7 +84,6 @@ declare var $:JQueryStatic;
 
 
     `,
-    styleUrls: ['../scss/chat-window-css.css'],
 })
 export class AppComponent {
     // Store the response so we can display the JSON for end user to see
@@ -94,6 +96,8 @@ export class AppComponent {
     private segments: Message[] = []; // Array of requests and responses
     private workspace_id: string = null;
     private langData: any;
+    private widgets: Widget[] = [];
+    private suppliers: SupplierModel[] = [];
 
     constructor(private _dialogService: DialogService, private _supplierService: SupplierService, private http: Http, public el: ElementRef) {
         this.getLang();
@@ -116,12 +120,7 @@ export class AppComponent {
         this.http.get(lang_url).map(res => res.json()).subscribe( //get introductory message - check locale/en.json
             data => {
                 this.langData = data;
-                var obj = {};
-                obj["text"] = this.langData.Description;
-                obj["isUser"] = false;
-                let message = new Message(obj);
-                this.segments.push(message);
-                console.log(this.segments);
+
             },
             error => {
                 let lang_url = 'locale/en.json';
@@ -143,7 +142,7 @@ export class AppComponent {
     */
     private keypressed(event) {
 
-        if(event.type === "click") {
+        if (event.type === "click") {
             if ($(event.target).attr('class') === "btn-chat")
                 this.sendData();
         }
@@ -379,28 +378,98 @@ export class AppComponent {
                         responseText = data1.error;
                         data1 = this.langData.NResponse;
                     } else if (data1.output) {
-                        if (data1.output.text) {
-                            if (data1.output.text.length >= 1) {
-                                responseText = data1.output.text.join('<br>');
+                        this.widgets = [];
+                        if (data1.output.delay) {
+                            let delays = data1.context.delays;
+                            let newsWidget = null;
+
+                            for (let delay of delays) {
+                                let obj = {};
+                                obj["title"] = delay.title;
+                                obj["date"] = delay.date;
+                                obj["desc"] = delay.body;
+                                obj["source"] = delay.source;
+                                obj["url"] = delay.sourceUrl;
+                                if (delay.type === "news") {
+                                    obj["icon_url"] = "img/newspaper.svg";
+                                } else {
+                                    obj["icon_url"] = "img/form.svg";
+                                }
+                                newsWidget = new Widget(obj);
+
+                                this.widgets.push(newsWidget);
                             }
+                            console.log(this.widgets);
+
+                        } else if (data1.output.past_forms) {
+                            let recentDocs = data1.context.recent_docs;
+                            let mainRecentDocs  = JSON.parse(recentDocs);
+
+                            for (let doc of mainRecentDocs) {
+                                let obj = {};
+                                console.log(doc.origin);
+                                obj["origin"] = doc.origin;
+                                console.log(doc.destination);
+                                obj["destination"] = doc.destination;
+
+                                obj["product"] = doc.product;
+                                obj["cost"] = doc.cost;
+                                obj["requestor"] = doc.requestor;
+                                console.log(obj);
+                                this.widgets.push(new Widget(obj));
+                                console.log(this.widgets);
+
+                            }
+
+                        } else if(data1.output.other_supplier_options) {
+                            console.log(data1.output.other_supplier_options);
+                            this.suppliers = [];
+                            let currentSupplier = data1.context.current_supplier;
+                            let localSuppliers = data1.context.suppliers;
+                            console.log(localSuppliers);
+                            for (let supplier of localSuppliers) {
+                                console.log(supplier);
+                                if(!(supplier.name == currentSupplier)) {
+                                    let obj = {};
+
+                                    obj["name"] = supplier.name;
+                                    obj["cost"] = supplier.cost;
+                                    let supplierModel = new SupplierModel(obj);
+                                    this.suppliers.push(supplierModel);
+
+
+                                }
+                            }
+
+                        }
+                        if (data1.output.text && data1.output.text.length >= 1) {
+                            responseText = data1.output.text.join('<br>');
                         }
                     }
-                }
-                let obj = {};
-                obj["text"] = responseText;
-                obj["isUser"] = false;
-                obj["payload"] = data1;
+                    let obj = {};
+                    obj["text"] = responseText;
+                    obj["isUser"] = false;
+                    obj["payload"] = data1;
+                    if (this.widgets != null) {
+                        obj["widgets"] = this.widgets;
+                        console.log(obj["widgets"]);
+                    }
+                    if(this.suppliers!=null && this.suppliers.length>0) {
+                        obj["suppliers"] = this.suppliers;
+                    }
 
-                this.segments.push(new Message(obj));
-                chatColumn.classList.remove('loading');
-                if (this.timer) {
-                    clearTimeout(this.timer);
+
+                    this.segments.push(new Message(obj));
+                    chatColumn.classList.remove('loading');
+                    if (this.timer) {
+                        clearTimeout(this.timer);
+                    }
+                    this.timer = setTimeout(() => {
+                        let messages = document.getElementById('scrollingChat').getElementsByClassName('clear');
+                        this.scrollToBottom();
+                    }, 50);
                 }
-                this.timer = setTimeout(() => {
-                    let messages = document.getElementById('scrollingChat').getElementsByClassName('clear');
-                    this.scrollToBottom();
-                }, 50);
-                //document.getElementById('textInput').focus();
+
             },
             error => {
                 let serviceDownMsg = this.langData.Log;

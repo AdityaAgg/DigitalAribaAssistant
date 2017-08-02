@@ -12,6 +12,8 @@
  */
 package com.ibm.watson.apis.conversation_with_nlu.payload;
 
+import java.util.Date;
+
 /**
  * A Payload object which describes a single result returned by the Discovery Service. The service is provided
  * with a user query, and returns a list of 'hits' for the query. Each hit is called a 'document'. The document contains
@@ -26,6 +28,24 @@ public class DocumentPayload {
     private String id;
     private String sourceUrl;
 
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    private String source;
+    private Date date;
 
     private String type;
     private String title;
@@ -34,11 +54,13 @@ public class DocumentPayload {
 
     }
 
-    public DocumentPayload(String title, String type, String sourceUrl, String body) {
+    public DocumentPayload(String title, String type, String sourceUrl, String body, String source, Date date) {
         this.body = body;
         this.sourceUrl = sourceUrl;
         this.type = type;
         this.title = title;
+        this.source = source;
+        this.date = date;
     }
 
     /**

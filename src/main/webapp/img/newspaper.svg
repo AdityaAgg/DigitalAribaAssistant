@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="29px" height="26px" viewBox="0 0 29 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 45.2 (43514) - http://www.bohemiancoding.com/sketch -->
+    <title>newspaper</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard" transform="translate(-839.000000, -362.000000)" fill-rule="nonzero" fill="#828EA2">
+            <g id="Group-2" transform="translate(797.000000, 275.000000)">
+                <g id="Group-6" transform="translate(20.000000, 55.000000)">
+                    <g id="Group-4" transform="translate(13.000000, 14.000000)">
+                        <g id="newspaper" transform="translate(9.000000, 18.000000)">
+                            <path d="M26.1,11.5555556 L2.9,11.5555556 L2.9,7.22222222 L26.1,7.22222222 L26.1,11.5555556 Z M26.1,17.3333333 L15.95,17.3333333 L15.95,14.4444444 L26.1,14.4444444 L26.1,17.3333333 Z M26.1,23.1111111 L15.95,23.1111111 L15.95,20.2222222 L26.1,20.2222222 L26.1,23.1111111 Z M13.05,23.1111111 L2.9,23.1111111 L2.9,14.4444444 L13.05,14.4444444 L13.05,23.1111111 Z M26.5785,2.41222222 L24.1715,0 L21.75,2.41222222 L19.3285,0 L16.9215,2.41222222 L14.5,0 L12.0785,2.41222222 L9.6715,0 L7.25,2.41222222 L4.8285,0 L2.4215,2.41222222 L0,0 L0,23.1111111 C0,24.7066004 1.29837423,26 2.9,26 L26.1,26 C27.7016258,26 29,24.7066004 29,23.1111111 L29,0 L26.5785,2.41222222 Z" id="Shape"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
